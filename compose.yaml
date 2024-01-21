@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+
+  # server running the webpage
+  server:
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    build:
+      context: ./server/
+    environment:
+      NODE_ENV: production
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - $WEBSERVER_LOCAL:$WEBSERVER_DOCKER
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:$WEBSERVER_LOCAL", "||", "exit", "1"]
+      interval: 5m
+      timeout: 30s
+      retries: 3
+      start_period: 15s
+    secrets:
+      - db-root-pass
+
+  # database
+  db:
+    build: ./database/
+    restart: always
+    secrets:
+      - db-root-pass
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db-root-pass
+      MYSQL_DATABASE: controld
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - $DATABASE_LOCAL:$DATABASE_DOCKER
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost:$DATABASE_LOCAL"]
+      interval: 5m
+      timeout: 30s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  db-data:
+
+secrets:
+  db-root-pass:
+    file: ./secrets/db-root-pass.txt

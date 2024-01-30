@@ -4,4 +4,4 @@ FROM mysql:latest
 
 EXPOSE $DATABASE_LOCAL
 
-COPY ./db-init.sql /docker-entrypoint-initdb.d/
+COPY ./database-scema.sql /docker-entrypoint-initdb.d/

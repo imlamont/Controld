@@ -1,7 +1,7 @@
 import express, { Express } from "express";
 import { Server } from "http"
 
-import {connectDB} from "./db.js";
+import { connectDB } from "./db.js";
 import { router as testRouter } from "./routes/test.js";
 
 const app:Express = express();
